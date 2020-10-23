@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-int main11()
+int main()
 {
     // 创建套接字
     int sock = socket(AF_INET, SOCK_STREAM, 0);
