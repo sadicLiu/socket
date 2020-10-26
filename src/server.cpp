@@ -52,6 +52,11 @@ void run_demo()
     delete[]pred;
 }
 
+
+const char *ip = "127.0.0.1";
+uint16_t port = 1234;
+
+
 int main()
 {
     // 创建套接字, 确定套接字的各种属性
@@ -62,28 +67,33 @@ int main()
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));            // 每个字节都用0填充
     server_addr.sin_family = AF_INET;                      // 使用IPv4地址
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");  // 具体的IP地址
-    server_addr.sin_port = htons(1234);                    // 端口
+    server_addr.sin_addr.s_addr = inet_addr(ip);  // 具体的IP地址
+    server_addr.sin_port = htons(port);                    // 端口
 
     // 让套接字与特定的IP地址和端口对应起来，这样客户端才能连接到该套接字。
     bind(server_sock, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    cout << "Server start success, now listening on port " << port << endl;
 
-    // 进入监听状态(被动监听, 套接字一直处于睡眠中, 直到客户端发起请求才会被唤醒), 等待用户发起请求
-    listen(server_sock, 20);
+    while (true)
+    {
+        // 进入监听状态(被动监听, 套接字一直处于睡眠中, 直到客户端发起请求才会被唤醒), 等待用户发起请求
+        listen(server_sock, 20);
 
-    // 接收客户端请求
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_size = sizeof(client_addr);
-    int client_sock = accept(server_sock, (struct sockaddr *) &client_addr, &client_addr_size);
+        // 接收客户端请求
+        struct sockaddr_in client_addr;
+        socklen_t client_addr_size = sizeof(client_addr);
+        int client_sock = accept(server_sock, (struct sockaddr *) &client_addr, &client_addr_size);
 
-    run_demo();
+        // run_demo();
 
-    // 向客户端发送数据
-    char str[] = "Done";
-    write(client_sock, str, sizeof(str));
+        // 向客户端发送数据
+        char str[] = "Done";
+        write(client_sock, str, sizeof(str));
+        close(client_sock);
+    }
+
 
     // 关闭套接字
-    close(client_sock);
     close(server_sock);
 
     return 0;
